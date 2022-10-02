@@ -9,6 +9,8 @@ I was reading something today that mentioned [Conway's Game of Life](https://en.
 ### Usage
 
 - To use, download this repo and open up `index.html` in your browser.
+- You'll need an internet connection as this pulls in [lodash](https://lodash.com/docs/4.17.15) from a CDN
+  - Removing it and making a shallow copy might be fine...I think i've done well not to mutate the objects or rely on nonmutated values.
 - Reload the browser tab to start again.
 - Some mildly intesting logs will show up in the browser console.
 - Edit some of 'config' and 'initial state' vars in `script.js` to change things up.

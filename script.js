@@ -5,20 +5,22 @@ const ROWS = 100; // Number of cells on x axis
 const COLS = 100; // Number of cells on y axis
 const GENERATIONS = 5206; // Number of times to generate a new state
 const SPEED = 42; // Speed to run in ms, 42ms is roughly 24 frames/sec
-const ALIVE = '#00ff00'; // Color to make Alive cells
+const ALIVE = "#00ff00"; // Color to make Alive cells
 const DEAD = "black"; // Color to make Dead cells
 const DEBUG = true; // Logs to console, noop if false
 
 // Initial State
-const FILL_COUNT = 500;
+const FILL_COUNT = 1000;
 const GLIDER = [
   [5, 4],
   [6, 5],
   [4, 6],
   [5, 6],
   [6, 6],
-]
-let INITIAL_STATE = GLIDER
+];
+// INITIAL_STATE type:
+// [number, number][] | `${number}_${number}`[]
+let INITIAL_STATE = GLIDER;
 // Start with random pattern, comment out to start with above.
 INITIAL_STATE = randomState(FILL_COUNT);
 
@@ -85,6 +87,9 @@ function createBoard() {
 }
 
 function initializeState() {
+  if (typeof INITIAL_STATE[0] === "string") {
+    INITIAL_STATE = INITIAL_STATE.map(fromCellId);
+  }
   for (let [x, y] of INITIAL_STATE) {
     CURR_STATE[y][x] = 1;
     const cell = document.getElementById(toCellId(x, y));
@@ -95,7 +100,7 @@ function initializeState() {
 function runGeneration() {
   PREV_STATE = cloneDeep(CURR_STATE);
   CURR_STATE = getNextState(PREV_STATE);
-  IS_STILL = isPrevStateNextState(PREV_STATE, CURR_STATE)
+  IS_STILL = isPrevStateNextState(PREV_STATE, CURR_STATE);
   render(CURR_STATE);
 }
 
@@ -155,14 +160,23 @@ function toCellId(x, y) {
   return `${x}_${y}`;
 }
 
+function fromCellId(id) {
+  return id.split("_").map(Number);
+}
+
 function randomState(numberToFill) {
-  const starts = [];
+  const points = new Set();
   for (let i = 0; i < numberToFill; i++) {
-    const randX = Math.floor(Math.random() * ROWS);
-    const randY = Math.floor(Math.random() * COLS);
-    starts.push([randX, randY]);
+    while (true) {
+      const randX = Math.floor(Math.random() * ROWS);
+      const randY = Math.floor(Math.random() * COLS);
+      if (!points.has(toCellId(randX, randY))) {
+        points.add(toCellId(randX, randY));
+        break;
+      }
+    }
   }
-  return starts;
+  return Array.from(points);
 }
 
 function isPrevStateNextState(a, b) {
