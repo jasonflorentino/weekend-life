@@ -15,7 +15,7 @@ I was reading something today that mentioned [Conway's Game of Life](https://en.
 
 ### Details
 
-- Currently we set up by making by making a bunch of divs and colouring them.
+- Currently we set up by making a bunch of divs and colouring them.
 - Painting is done by computing the next state (a 2D array of 0s or 1s), running through each value, and setting the corresponding colour into the DOM node. We skip when there's no change to avoid unecessary writes to the DOM...
-- This is called in a `setInterval` with a limit that we set just to be really nice to our computer. But I guess it wouldn't be the worst thing to just run it forever.
-- We also do a simple diff of the current and next state to tell if the image is still.
+- This is called in a `setInterval` with a limit that we set just to be really really nice to our computer. But I guess it wouldn't be the worst thing to just run it forever.
+- We also do a simple diff of the current and next state to tell if the image is still and end the loop early.
