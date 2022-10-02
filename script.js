@@ -7,6 +7,7 @@ const GENERATIONS = 5206;
 const SPEED = 42; // ms, roughly 24 frames/sec
 const ALIVE = '#00ff00';
 const DEAD = "black";
+const DEBUG = true;
 
 // Initial State
 const FILL_COUNT = 500;
@@ -17,15 +18,15 @@ const GLIDER = [
   [5, 6],
   [6, 6],
 ]
-let INIT = GLIDER
-INIT = randomState(FILL_COUNT);
+let INITIAL_STATE = GLIDER
+INITIAL_STATE = randomState(FILL_COUNT);
 
 // Internal use
 let CURR_GEN = 0;
-let PREV_STATE = [];
+let PREV_STATE = makeBlankState();
 let CURR_STATE = makeBlankState();
 let IS_STILL = false;
-const MOVES = [
+const NEIGHBOURS = [
   [0, -1],
   [1, -1],
   [1, 0],
@@ -35,7 +36,7 @@ const MOVES = [
   [-1, 0],
   [-1, -1],
 ];
-const log = console.log;
+const log = DEBUG ? console.log : () => {};
 
 // Main program
 main();
@@ -43,7 +44,7 @@ main();
 // Function Defs
 function main() {
   log("starting");
-  log("initial state:", INIT);
+  log("initial state:", INITIAL_STATE);
   createBoard();
   initializeState();
   const timeout = setInterval(() => {
@@ -51,11 +52,11 @@ function main() {
     CURR_GEN++;
     if (IS_STILL) {
       log(`still after ${CURR_GEN} generations`);
-      clearTimeout(timeout);
+      clearInterval(timeout);
     }
     if (CURR_GEN > GENERATIONS) {
       log(`finished ${GENERATIONS} generations`);
-      clearTimeout(timeout);
+      clearInterval(timeout);
     }
   }, SPEED);
 }
@@ -83,7 +84,7 @@ function createBoard() {
 }
 
 function initializeState() {
-  for (let [x, y] of INIT) {
+  for (let [x, y] of INITIAL_STATE) {
     CURR_STATE[y][x] = 1;
     const cell = document.getElementById(toCellId(x, y));
     cell.style.backgroundColor = ALIVE;
@@ -102,10 +103,10 @@ function getNextState(state) {
   for (let y = 0; y < COLS; y++) {
     for (let x = 0; x < ROWS; x++) {
       const cellState = state[y][x];
-      const neighbourScore = getNeighbourScore(state, x, y);
-      if (cellState === 1 && (neighbourScore === 3 || neighbourScore === 2)) {
+      const neighboursScore = getNeighboursScore(state, x, y);
+      if (cellState === 1 && (neighboursScore === 3 || neighboursScore === 2)) {
         newState[y][x] = 1;
-      } else if (cellState === 0 && neighbourScore === 3) {
+      } else if (cellState === 0 && neighboursScore === 3) {
         newState[y][x] = 1;
       } else {
         newState[y][x] = 0;
@@ -120,7 +121,13 @@ function render(state) {
     for (let x = 0; x < ROWS; x++) {
       const cellState = state[y][x];
       const cell = document.getElementById(toCellId(x, y));
-      cell.style.backgroundColor = cellState === 1 ? ALIVE : DEAD;
+      const currStateColor = cell.style.backgroundColor;
+      const nextStateColor = cellState === 1 ? ALIVE : DEAD;
+      if (currStateColor === nextStateColor) {
+        continue;
+      } else {
+        cell.style.backgroundColor = nextStateColor;
+      }
     }
   }
 }
@@ -129,9 +136,9 @@ function makeBlankState() {
   return new Array(COLS).fill(0).map((_) => new Array(ROWS).fill(0));
 }
 
-function getNeighbourScore(state, x, y) {
+function getNeighboursScore(state, x, y) {
   let score = 0;
-  for (let [diffX, diffY] of MOVES) {
+  for (let [diffX, diffY] of NEIGHBOURS) {
     let targX = x + diffX;
     let targY = y + diffY;
     if (targX < 0) targX += ROWS;
