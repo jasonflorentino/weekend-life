@@ -1,13 +1,13 @@
 const { cloneDeep } = _;
 
 // Config
-const ROWS = 100;
-const COLS = 100;
-const GENERATIONS = 5206;
-const SPEED = 42; // ms, roughly 24 frames/sec
-const ALIVE = '#00ff00';
-const DEAD = "black";
-const DEBUG = true;
+const ROWS = 100; // Number of cells on x axis
+const COLS = 100; // Number of cells on y axis
+const GENERATIONS = 5206; // Number of times to generate a new state
+const SPEED = 42; // Speed to run in ms, 42ms is roughly 24 frames/sec
+const ALIVE = '#00ff00'; // Color to make Alive cells
+const DEAD = "black"; // Color to make Dead cells
+const DEBUG = true; // Logs to console, noop if false
 
 // Initial State
 const FILL_COUNT = 500;
@@ -19,6 +19,7 @@ const GLIDER = [
   [6, 6],
 ]
 let INITIAL_STATE = GLIDER
+// Start with random pattern, comment out to start with above.
 INITIAL_STATE = randomState(FILL_COUNT);
 
 // Internal use
@@ -48,7 +49,7 @@ function main() {
   createBoard();
   initializeState();
   const timeout = setInterval(() => {
-    generate();
+    runGeneration();
     CURR_GEN++;
     if (IS_STILL) {
       log(`still after ${CURR_GEN} generations`);
@@ -91,7 +92,7 @@ function initializeState() {
   }
 }
 
-function generate() {
+function runGeneration() {
   PREV_STATE = cloneDeep(CURR_STATE);
   CURR_STATE = getNextState(PREV_STATE);
   IS_STILL = isPrevStateNextState(PREV_STATE, CURR_STATE)
